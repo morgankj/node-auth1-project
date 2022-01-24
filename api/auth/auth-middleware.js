@@ -1,5 +1,5 @@
-const res = require('express/lib/response');
-const User = require('../users/users-model');
+const res = require("express/lib/response");
+const User = require("../users/users-model");
 
 /*
   If the user does not have a session saved in the server
@@ -29,10 +29,11 @@ function restricted(req, res, next) {
     "message": "Username taken"
   }
 */
-async function checkUsernameFree(req, res, next) {}
+async function checkUsernameFree(req, res, next) {
   try {
-    const usernameTaken = await User.findBy(req.body.username);
-    if(usernameTaken) {
+    const [user] = await User.findBy({ username: req.body.username });
+
+    if (user) {
       next({ status: 422, message: "Username taken" });
     } else {
       next();
@@ -40,6 +41,7 @@ async function checkUsernameFree(req, res, next) {}
   } catch (err) {
     next(err);
   }
+}
 /*
   If the username in req.body does NOT exist in the database
 
@@ -48,10 +50,10 @@ async function checkUsernameFree(req, res, next) {}
     "message": "Invalid credentials"
   }
 */
-async function checkUsernameExists(req, res, next) {}
+async function checkUsernameExists(req, res, next) {
   try {
-    const existingUsername = await User.findBy(req.body.username)
-    if(existingUsername) {
+    const existingUsername = await User.findBy(req.body.username);
+    if (existingUsername) {
       next();
     } else {
       next({ status: 401, message: "Invalid credentials" });
@@ -59,6 +61,7 @@ async function checkUsernameExists(req, res, next) {}
   } catch (err) {
     next(err);
   }
+}
 /*
   If password is missing from req.body, or if it's 3 chars or shorter
 
@@ -70,7 +73,7 @@ async function checkUsernameExists(req, res, next) {}
 function checkPasswordLength(req, res, next) {
   try {
     const { password } = req.body;
-    if(!password || password.length < 4) {
+    if (!password || password.length < 4) {
       next({ status: 422, message: "Password must be longer than 3 chars" });
     } else {
       next();
